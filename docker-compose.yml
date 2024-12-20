@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: pg_db_1
+    environment:
+      POSTGRES_DB: pg_db_docker
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_DB: pg_db_docker
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      DATABASE_HOST: db
+      DB_PORT: 5432
+
+      DJANGO_SETTINGS_MODULE: src.settings.local-docker
+    volumes:
+      - .:/usr/src/app
+      - static_data:/usr/ecommerce/backend/scr/static
+      - media_data:/usr/ecommerce/backend/src/media
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  db_data:
+  static_data:
+  media_data:
